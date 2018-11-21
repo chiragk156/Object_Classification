@@ -19,6 +19,7 @@ def read_images(dataset_path):
         image = img_to_array(image)
         images[count,:,:,:] = image
         count += 1
+        print(count)
     return images
 
 
