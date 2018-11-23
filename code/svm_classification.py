@@ -3,15 +3,12 @@ import numpy as np
 import imp
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-from sklearn.model_selection import train_test_split  
+from sklearn.model_selection import train_test_split
 
 
-svclassifier = SVC(kernel='linear')
 
-class_labels = ["aeroplane","bird","cat","person"]
-path = '../vgg_features/'
 
-def read_features_data(path):
+def read_vgg_output_data(path,class_labels):
     X = None
     Y = None
     for i in range(len(class_labels)):
@@ -29,11 +26,15 @@ def read_features_data(path):
     return X, Y
 
 # Reading Data
-X,y = read_features_data(path)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.20)
+# X,y = read_features_data(path)
 
-svclassifier.fit(X_train,y_train)
-y_pred = svclassifier.predict(X_test)
-# print(confusion_matrix(Y_train,Y_pred))
-# print(classification_report(Y_train,Y_pred))
-print('Testing Accuracy: ',accuracy_score(y_pred,y_test))
+def trainSVM(X,y,test_split_ratio):
+    svclassifier = SVC(kernel='linear')
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_split_ratio)
+
+    svclassifier.fit(X_train,y_train)
+    y_pred = svclassifier.predict(X_test)
+    # print(confusion_matrix(Y_train,Y_pred))
+    # print(classification_report(Y_train,Y_pred))
+    print('Testing Accuracy: ',accuracy_score(y_pred,y_test))
+    return svclassifier
