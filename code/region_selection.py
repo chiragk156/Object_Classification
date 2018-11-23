@@ -4,14 +4,11 @@
 import sys
 import cv2
 
-
-def select_regions(image, method='f'):
+#im = image // method='f'/'q'
+def select_regions(im, method='f'):
     # speed-up using multithreads
-    cv2.setUseOptimized(True);
-    cv2.setNumThreads(4);
- 
-    # read image
-    im = cv2.imread(image)
+    cv2.setUseOptimized(True)
+    cv2.setNumThreads(4)
     # resize image
     newHeight = 400
     newWidth = int(im.shape[1]*400/im.shape[0])
