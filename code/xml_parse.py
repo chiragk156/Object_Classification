@@ -3,7 +3,7 @@ import cv2
 import os
 
 if __name__=="__main__":
-    classes = ['person','aeroplane','cat','bird']
+    classes = ['aeroplane','bicycle','bird','boat','bus','cat','cow','dog','person']
 
 
     #main directory path having train file name 
