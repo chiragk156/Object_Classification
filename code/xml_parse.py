@@ -2,22 +2,8 @@ import xml.etree.ElementTree as ET
 import cv2
 import os
 
-if __name__=="__main__":
-    classes = ['person','aeroplane','cat','bird']
 
-
-    #main directory path having train file name 
-    main_dir_path = '../VOCtrainval_11-May-2012/VOCdevkit/VOC2012/ImageSets/Main/'
-
-    #xml files dir path
-    xml_dir_path = '../VOCtrainval_11-May-2012/VOCdevkit/VOC2012/Annotations/'
-
-    #all images dir path
-    images_dir_path = '../VOCtrainval_11-May-2012/VOCdevkit/VOC2012/JPEGImages/'
-
-    #cropped images dir path
-    cropped_img_dir_path = os.getcwd() + '/../train_images/'
-
+def xml_parse_training(classes, main_dir_path, xml_dir_path, images_dir_path, cropped_img_dir_path):
     #making cropped images directory if not exists
     directory = os.path.dirname(cropped_img_dir_path)
     if not os.path.exists(directory):
@@ -50,3 +36,21 @@ if __name__=="__main__":
                             img = cv2.imread(images_dir_path+tokens[0]+'.jpg')          #reading object image
                             cropped_img = img[ymin:ymax,xmin:xmax]                      #cropping with required dimensions
                             cv2.imwrite(cropped_img_dir_path + obj + '/' + tokens[0]+'.jpg',cropped_img)        #saving in required folder
+
+if __name__=="__main__":
+    classes = ['person','aeroplane','cat','bird']
+
+
+    #main directory path having train file name 
+    main_dir_path = '../VOCtrainval_11-May-2012/VOCdevkit/VOC2012/ImageSets/Main/'
+
+    #xml files dir path
+    xml_dir_path = '../VOCtrainval_11-May-2012/VOCdevkit/VOC2012/Annotations/'
+
+    #all images dir path
+    images_dir_path = '../VOCtrainval_11-May-2012/VOCdevkit/VOC2012/JPEGImages/'
+
+    #cropped images dir path
+    cropped_img_dir_path = os.getcwd() + '/../train_images/'
+
+    xml_parse_training(classes,main_dir_path,xml_dir_path,images_dir_path,cropped_img_dir_path)
