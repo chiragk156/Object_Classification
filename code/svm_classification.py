@@ -7,10 +7,8 @@ from sklearn.model_selection import train_test_split
 
 
 
-# class_labels = ['aeroplane','bicycle','bird','boat','bus','cat','cow','dog','person']
-# path = '../vgg_features/'
 
-def read_vgg_output_data(path):
+def read_vgg_output_data(path,class_labels):
     X = None
     Y = None
     for i in range(len(class_labels)):
