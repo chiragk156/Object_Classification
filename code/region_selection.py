@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-
- 
 import sys
 import cv2
 
@@ -10,9 +7,9 @@ def select_regions(im, method='f'):
     cv2.setUseOptimized(True)
     cv2.setNumThreads(4)
     # resize image
-    newHeight = 400
-    newWidth = int(im.shape[1]*400/im.shape[0])
-    im = cv2.resize(im, (newWidth, newHeight))
+    # newHeight = 400
+    # newWidth = int(im.shape[1]*400/im.shape[0])
+    # im = cv2.resize(im, (newWidth, newHeight))
     # create Selective Search Segmentation Object using default parameters
     ss = cv2.ximgproc.segmentation.createSelectiveSearchSegmentation()
  
@@ -20,7 +17,7 @@ def select_regions(im, method='f'):
     ss.setBaseImage(im)
  
     # Switch to fast but low recall Selective Search method
-    if (method):
+    if (method == 'f'):
         ss.switchToSelectiveSearchFast(sigma = 0.5)
  
     # Switch to high recall but slow Selective Search method

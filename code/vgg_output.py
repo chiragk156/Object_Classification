@@ -1,6 +1,7 @@
 import os
 import sys
 import pickle
+import cv2
 import numpy as np
 from keras.applications.vgg16 import VGG16
 from keras.models import Model
@@ -43,3 +44,28 @@ def store_vgg_output(dataset_path,output_path):
     file = open(output_path, 'wb')
     pickle.dump(vgg_output,file)
     file.close()
+
+def get_vgg_output(im,rect_list):
+    region_count = len(rect_list)
+    if(region_count > 2000):
+        region_count = 2000
+    images = np.zeros((region_count,224,224,3))
+    count = 0
+    model = VGG16()
+    intermediate_layer_model = Model(inputs=model.input,outputs=model.get_layer('fc2').output)
+    for box in rect_list:
+        if count >= 2000:
+            break
+        x,y,w,h = box
+        image = im[y:y+h,x:x+w]
+        print(im.shape,image.shape,x,x+w,y,y+h)
+        image = cv2.resize(image,(224,224))
+        image = img_to_array(image)
+        images[count,:,:,:] = image
+        count+=1
+
+    images = preprocess_input(images)
+    
+    vgg_output = intermediate_layer_model.predict(images)
+
+    return vgg_output
