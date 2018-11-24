@@ -29,7 +29,7 @@ def read_vgg_output_data(path,class_labels):
 # X,y = read_features_data(path)
 
 def trainSVM(X,y,test_split_ratio):
-    svclassifier = SVC(kernel='linear')
+    svclassifier = SVC(kernel='linear',probability=True)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_split_ratio)
 
     svclassifier.fit(X_train,y_train)

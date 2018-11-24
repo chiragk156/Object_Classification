@@ -39,7 +39,7 @@ X,y = read_vgg_output_data(vgg_features_output,classes)
 file = open('svm','rb')
 svm_classifier = pickle.load(file)
 file.close()
-img = cv2.imread('C:\\Users\\chira\\Desktop\\RCNN_Project\\VOC2012test\\VOCdevkit\\VOC2012\\JPEGImages\\2008_000017.jpg')
+img = cv2.imread('../VOC2012test/VOCdevkit/VOC2012/JPEGImages/2008_000017.jpg')
 rects_list = select_regions(img)
 out = maximum_region_selector(svm_classifier,img,rects_list)
 

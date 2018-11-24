@@ -2,7 +2,7 @@ import sys
 import cv2
 
 #im = image // method='f'/'q'
-def select_regions(im, method='f'):
+def select_regions(im, method='q'):
     # speed-up using multithreads
     cv2.setUseOptimized(True)
     cv2.setNumThreads(4)

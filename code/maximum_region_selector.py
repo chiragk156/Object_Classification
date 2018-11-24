@@ -1,6 +1,7 @@
-from region_selection import  *
+from region_selection import  select_regions
 from svm_classification import trainSVM
 from vgg_output import get_vgg_output
+import cv2
 
 
 
@@ -20,7 +21,7 @@ def get_overlap_area_ratio(rect1, rect2):
         return -1
 
 
-def maximum_region_selector(svm_classifier,im,rect_list,area_threshold = 0.3,score_threshold = 1):
+def maximum_region_selector(svm_classifier,im,rect_list,area_threshold = 0.3,score_threshold = 0.7):
     '''
         region info is a dict with key as region rect and value is the class predicted by the 
     '''
@@ -31,19 +32,20 @@ def maximum_region_selector(svm_classifier,im,rect_list,area_threshold = 0.3,sco
     region_outputs = region_outputs.astype(int)
     print(region_outputs,region_outputs.shape)
 
-    score_regions = svm_classifier.decision_function(vgg_output)
+    score_regions = svm_classifier.predict_proba(vgg_output)
     print(score_regions,score_regions.shape)
     '''
         storing indices of rect_list in final_regions
     '''
     final_regions = []
 
-    for i in range(len(rect_list)):
+    for i in range(region_outputs.shape[0]):
 
         check = True
+        if(score_regions[i][region_outputs[i]] < score_threshold):
+            check = False
+            continue
         for j in final_regions:
-            if(score_regions[i][region_outputs[i]] < score_threshold):
-                break
             if(region_outputs[j] == region_outputs[i]):
                 overlap_area_ratio = get_overlap_area_ratio(rect_list[i],rect_list[j])
                 '''
@@ -65,6 +67,7 @@ def maximum_region_selector(svm_classifier,im,rect_list,area_threshold = 0.3,sco
 
     for i in final_regions:
         x,y,w,h = rect_list[i]
+        cv2.putText(im,str(region_outputs[i])+' '+str(score_regions[i][region_outputs[i]]),(x,y),cv2.FONT_HERSHEY_COMPLEX,0.2,(200,0,0),1,cv2.LINE_AA)
         cv2.rectangle(im, (x, y), (x+w, y+h), (0, 255, 0), 1, cv2.LINE_AA)
     
     cv2.imshow('output',im)
