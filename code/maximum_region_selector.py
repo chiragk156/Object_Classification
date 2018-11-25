@@ -21,7 +21,7 @@ def get_overlap_area_ratio(rect1, rect2):
         return -1
 
 
-def maximum_region_selector(svm_classifier,im,rect_list,area_threshold = 0.3,score_threshold = 0.7):
+def maximum_region_selector(svm_classifier,im,rect_list,classes,area_threshold = 0.05,score_threshold = 0.7):
     '''
         region info is a dict with key as region rect and value is the class predicted by the 
     '''
@@ -54,7 +54,7 @@ def maximum_region_selector(svm_classifier,im,rect_list,area_threshold = 0.3,sco
                     else check if the overlap area is greater than 
                 '''
                 if(overlap_area_ratio > area_threshold):
-                    print(region_outputs[i])
+                    # print(region_outputs[i])
                     if(score_regions[i][region_outputs[i]] < score_regions[j][region_outputs[j]]):
                         '''
                             remove j index from the final list and add i.
@@ -67,7 +67,8 @@ def maximum_region_selector(svm_classifier,im,rect_list,area_threshold = 0.3,sco
 
     for i in final_regions:
         x,y,w,h = rect_list[i]
-        cv2.putText(im,str(region_outputs[i])+' '+str(score_regions[i][region_outputs[i]]),(x,y),cv2.FONT_HERSHEY_COMPLEX,0.2,(200,0,0),1,cv2.LINE_AA)
+        print(classes[region_outputs[i]],score_regions[i][region_outputs[i]],i)
+        cv2.putText(im,str(region_outputs[i])+' '+str(score_regions[i][region_outputs[i]]),(x,y),cv2.FONT_HERSHEY_COMPLEX,0.4,(200,0,0),1,cv2.LINE_AA)
         cv2.rectangle(im, (x, y), (x+w, y+h), (0, 255, 0), 1, cv2.LINE_AA)
     
     cv2.imshow('output',im)

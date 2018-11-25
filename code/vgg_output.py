@@ -21,7 +21,7 @@ def read_images(dataset_path):
         image = img_to_array(image)
         images[count,:,:,:] = image
         count += 1
-        print(full_img_path)
+        # print(full_img_path)
     return images
 
 
@@ -58,7 +58,6 @@ def get_vgg_output(im,rect_list):
             break
         x,y,w,h = box
         image = im[y:y+h,x:x+w]
-        print(im.shape,image.shape,x,x+w,y,y+h)
         image = cv2.resize(image,(224,224))
         image = img_to_array(image)
         images[count,:,:,:] = image
