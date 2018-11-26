@@ -1,5 +1,7 @@
 '''
-    
+    Run this file after vgg_features have been made .i.e run main first then run this file.
+
+    This file is svm implementation which is used as last step for classification of objects.
 
 '''
 
@@ -266,7 +268,10 @@ def experiment_learning_rate(classes):
 
 if __name__ == '__main__':
     
+    '''
+        These are the classes where any input will be classified into.
     
+    '''
 
 
     classes = ['aeroplane','bicycle','bird','boat','car','person','horse','dog','cat']
@@ -275,7 +280,9 @@ if __name__ == '__main__':
     
     '''
     train_test_dataset_split(0.2, classes)
+
     svm_classifiers = train_svm_ovo(classes)
+
     ifile = open('svm_weights','wb')
     pickle.dump(svm_classifiers,ifile)
     ifile.close()
@@ -287,8 +294,19 @@ if __name__ == '__main__':
 
     X_test,y_test = read_vgg_output_data(vgg_features_output_test,classes)
 
+    '''
+        After extracting X_test and y_test, printing test accuracy of the model.
+    
+    '''
+
+    print('Accuracy of the model : ' + str(get_accuracy(svm_classifiers, X_test,y_test)))
+
     ifile = open('svm_weights','rb')
     svm_classifiers = pickle.load(ifile)
     ifile.close()
+
+    '''
+        this line can be commented as this is only done to plot a graph b/w learning rates and accuracy of the model.
+    '''
     experiment_learning_rate(classes)
-    
+
