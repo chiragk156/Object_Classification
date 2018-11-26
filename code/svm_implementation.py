@@ -1,6 +1,6 @@
 '''
-    assuming we have vgg_output.
-    input for the svm_train Nx4096 matrix.
+    
+
 '''
 
 #import cv2
@@ -11,6 +11,13 @@ from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from sklearn.model_selection import train_test_split
 import pickle
+import os
+import matplotlib.pyplot as plt
+
+vgg_features_output = '../vgg_features/'
+vgg_features_output_train = '../vgg_features_train/'
+vgg_features_output_test = '../vgg_features_test/'
+
 
 def get_pred_acc(w,b,x,y):
     N = x.shape[0]
@@ -89,43 +96,45 @@ def learn_svm_model(x, y, learning_rate = 0.2,C = 1, n_iters = 200):
 
 
 
-def train_svm_classifier(x, y):
+def train_svm_classifier(x, y, learning_rate=0.2):
     '''
         this function is like a preproccessing for learn_svm_model function.
         class1 implies positive, class2 implies negative.
         class1 and class2 are strings.
         
     '''
-    # vgg_features_output = '../vgg_features/'
-
-    # classes = [class1, class2]
-    # x,y = read_vgg_output_data(vgg_features_output,classes)
     y = y.reshape((y.shape[0],1))
     y[y == 1] = -1
     y[y == 0] = 1
     '''
         got x and y in desired format.
     '''
-    svm_model = learn_svm_model(x,y)
+    svm_model = learn_svm_model(x,y,learning_rate)
     return svm_model 
 
-def train_svm_ovo(classes):
+def train_svm_ovo(classes,learning_rate=0.2):
     '''
         output is kc2 w,b.
         it is in the form of dictionary where key is tuple class indices and value is w,b tuple.
+        here read the train data from ../vgg_features_train/
     '''
-
-    vgg_features_output = '../vgg_features/'
+    vgg_features_output_train = '../vgg_features_train/'
 
     svm_classifiers = {}
-    
+
+    print('training....')
     for i in range(len(classes)):
         for j in range(i+1,len(classes)):
-            x,y = read_vgg_output_data(vgg_features_output,[classes[i],classes[j]])
-            w,b = train_svm_classifier(x, y)
+            
+            x,y = read_vgg_output_data(vgg_features_output_train,[classes[i],classes[j]])
+            '''
+                y_test has only 1 and 0. so replace 0 with i and 1 with j.
+            
+            '''
+            w,b = train_svm_classifier(x, y, learning_rate)
             svm_classifiers.update({(i,j) : (w,b)})
-            print('done for ' + str(i) + ' ' + str(j))
-
+            #print('done for ' + str(i) + ' ' + str(j))
+    print('done training.')
 
     return svm_classifiers
 
@@ -142,6 +151,7 @@ def predict_svm(svm_model, x):
             implies negative class
         '''
         return 0
+
 
 def predict_output(svm_classifiers, x, classes):
     output = {}
@@ -178,46 +188,107 @@ def get_accuracy(svm_classifiers, x, y):
     error_perc = 100*(err_count/N)
     return 100 - error_perc
 
+'''
+this function splits the data into test and train.
+
+'''
+
+def train_test_dataset_split(test_split_ratio, classes):
+   
+
+    '''
+        for every class, split the data into test and train and then save then save the data using pickle. 
+        use filepaths as classnames.
+
+        vgg_features_train folder to store training instances.
+        vgg_features_test folder to store test instances.
+
+    '''
+
+    vgg_features_output = '../vgg_features/'
+    vgg_features_output_train = '../vgg_features_train/'
+    vgg_features_output_test = '../vgg_features_test/'
+
+    if(os.path.exists('../vgg_features_train/') == False):
+        os.mkdir('../vgg_features_train/')
+    if(os.path.exists('../vgg_features_test/') == False):
+        os.mkdir('../vgg_features_test/')
 
 
+    for class1 in classes:
+        x,y = read_vgg_output_data(vgg_features_output,[class1])
+        '''
+            splitting the data into test and train
+        '''
+        X_train, X_test, y_train, y_test = train_test_split(x, y, test_size = test_split_ratio)
 
-    
+        '''
+            saving train into vgg_features_output_train
+            and test into vgg_features_output_test
+        '''
 
+        ifile = open(vgg_features_output_train + class1,'wb')
+        pickle.dump(X_train,ifile)
+        ifile.close()
 
-    
-    
+        ifile = open(vgg_features_output_test + class1,'wb')
+        pickle.dump(X_test,ifile)
+        ifile.close()
+
+def experiment_learning_rate(classes):
+    '''
+        In this experiment, we train the svm model with different learning rates.
+        learning rate : 0.01 to 0.5 with a step 0.05 
+    '''
+    l_rate = 0.01
+    test_acc_list = []
+    train_acc_list = []
+    l_rate_list = []
+    X_test,y_test = read_vgg_output_data(vgg_features_output_test,classes)
+    X_train,y_train = read_vgg_output_data(vgg_features_output_train,classes)
+    for i in range(10):
+        svm_classifier = train_svm_ovo(classes)
+        test_acc_list.append(get_accuracy(svm_classifier,X_test,y_test))
+        train_acc_list.append(get_accuracy(svm_classifier,X_train,y_train))
+        print(get_accuracy(svm_classifier,X_test,y_test),get_accuracy(svm_classifier,X_train,y_train))
+        l_rate_list.append(l_rate)
+        l_rate += 0.05
+        print('-----------------------------------------')
+
+    plt.plot(l_rate_list, train_acc_list, label='training instances')
+    plt.plot(l_rate_list, test_acc_list,label='test instances')
+    plt.xlabel('Learning rate')
+    plt.ylabel('Accuracy of the model')
+    plt.legend()
+    plt.show()
 
 
 
 if __name__ == '__main__':
-    vgg_features_output = '../vgg_features/'
-    # x,y = read_vgg_output_data(vgg_features_output,classes)
     
-    # svclassifier = SVC(kernel='linear',probability=True)
-    # X_train, X_test, y_train, y_test = train_test_split(x, y, test_size = 0.2)
-    # y_train[y_train == 1] = -1
-    # y_train[y_train == 0] = 1
-    # y_test[y_test == 1] = -1
-    # y_test[y_test == 0] = 1
-    # svclassifier.fit(X_train,y_train)
-    # y_pred = svclassifier.predict(X_test)
-    # # print(confusion_matrix(Y_train,Y_pred))
-    # # print(classification_report(Y_train,Y_pred))
     
-    # w,b = train_svm_classifier(X_train,y_train)
-    # print(get_pred_acc(w,b,X_test,y_test))
-    # print(get_pred_acc(w,b,X_train,y_train))
-    # print('Testing Accuracy: ',accuracy_score(y_pred,y_test))
 
 
     classes = ['aeroplane','bicycle','bird','boat','car','person','horse','dog','cat']
-    # svm_classifiers = train_svm_ovo(classes)
-    # ifile = open('svm_weights','wb')
-    # pickle.dump(svm_classifiers,ifile)
-    # ifile.close()
+    '''
+        store the train and test instances accordingly.
+    
+    '''
+    train_test_dataset_split(0.2, classes)
+    svm_classifiers = train_svm_ovo(classes)
+    ifile = open('svm_weights','wb')
+    pickle.dump(svm_classifiers,ifile)
+    ifile.close()
+
+    X_test,y_test = read_vgg_output_data(vgg_features_output_test,classes)
+    '''
+        read x_test and y_test.
+    '''
+
+    X_test,y_test = read_vgg_output_data(vgg_features_output_test,classes)
+
     ifile = open('svm_weights','rb')
     svm_classifiers = pickle.load(ifile)
     ifile.close()
-    x,y = read_vgg_output_data(vgg_features_output, classes)
-
-    print(get_accuracy(svm_classifiers,x,y))
+    experiment_learning_rate(classes)
+    
